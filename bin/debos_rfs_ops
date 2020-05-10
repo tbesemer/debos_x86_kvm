@@ -1,0 +1,122 @@
+#!/bin/bash
+
+#  Used in CTL C conditions, just to ensure we exit
+#  without leaving anything mounted.
+#
+function do_force_unmount()
+{
+    umount $ROOTFS_PATH/dev/pts 2>&1 
+    umount $ROOTFS_PATH/proc 2>&1
+    umount $ROOTFS_PATH/dev 2>&1
+    return 0
+}
+
+# Base bootstrap of Root FS.
+#
+function do_base_install()
+{
+    if [ ! -d $ROOTFS_PATH ]
+    then
+        debootstrap --variant=minbase buster $ROOTFS_PATH
+        if [ $? -ne 0 ]
+        then
+            echo "$0: qemu-debootstrap failed"
+            do_force_unmount
+	    return 1;
+	else 
+            do_force_unmount
+        fi
+    fi 
+
+    return 0
+}
+
+#  Mounted needed functions for apt operations.
+#
+function do_mount()
+{
+    mount --bind /dev $ROOTFS_PATH/dev
+    if [ $? -ne 0 ]
+    then
+        echo "$0: mount of $ROOTFS_PATH/dev/pts failed"
+        return 1
+    fi
+
+    mount --bind /dev/pts $ROOTFS_PATH/dev/pts
+    if [ $? -ne 0 ]
+    then
+        echo "$0: mount of $ROOTFS_PATH/dev/pts failed"
+        return 1
+    fi
+
+    mount --bind /proc $ROOTFS_PATH/proc
+    if [ $? -ne 0 ]
+    then
+        echo "$0: mount of $ROOTFS_PATH/proc failed"
+        umount $ROOTFS_PATH/dev/pts
+        return 1
+    fi
+
+    return 0
+}
+
+# Attempt to do a clean unmount, and check status.
+#
+function do_unmount()
+{
+    umount $ROOTFS_PATH/proc
+    if [ $? -ne 0 ]
+    then
+        echo "$0: umount of $ROOTFS_PATH/proc failed"
+        return 2
+    fi
+
+    umount $ROOTFS_PATH/dev/pts
+    if [ $? -ne 0 ]
+    then
+        echo "$0: umount of $ROOTFS_PATH/dev/pts failed"
+        umount $ROOTFS_PATH/proc
+        return 1
+    fi
+
+    umount $ROOTFS_PATH/dev
+    if [ $? -ne 0 ]
+    then
+        echo "$0: umount of $ROOTFS_PATH/dev/pts failed"
+        umount $ROOTFS_PATH/proc
+        return 1
+    fi
+
+    return 0
+}
+
+function do_package_install()
+{
+
+    if [ $# -eq 0 ]
+    then
+        echo "do_package_install: Empty Arguments"
+	return 1
+    else
+        PLIST=$(echo ${1} | tr "," " "); \
+    fi
+
+    echo "Installing $PLIST"
+
+    chroot ${ROOTFS_PATH} sh -c "\
+	export DEBIAN_FRONTEND=noninteractive;\
+	export LC_ALL=C.UTF-8;\
+	apt-get update; \
+	errStat=$? ;\
+	apt-get install -y ${PLIST}; \
+	errStat=$((errStat + $?)); \
+        return $errStat"
+}
+
+function ctl_c_handler()
+{
+    echo echo "$0: ctl_c_handler: Forcing Unmount"
+    do_force_unmount
+    echo "$0: Exiting"
+    exit 0
+}

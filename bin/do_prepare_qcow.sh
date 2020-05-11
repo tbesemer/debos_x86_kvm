@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #  Define the packages to install into the Base RFS.
 #  These are mainly meant to be boot related packages.

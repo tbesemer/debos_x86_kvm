@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Define the packages to install onto the Base RFS.
 #

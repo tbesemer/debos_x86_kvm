@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 #  Key variables for proper opration.

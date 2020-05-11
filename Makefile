@@ -6,6 +6,9 @@ export ROOTFS_OVERLAY_DIR := ${ROOT_DIR}/rootfs_overlay
 export ROOTFS_NAME := kvm-x86-rootfs
 export QCOW_ROOTFS_NAME := qcow_mnt
 
+.PHONY: all
+all: build_template_rfs prepare_qcow_image
+
 .PHONY: build_template_rfs
 build_template_rfs:
 	sudo -E bin/do_generate_base_x86.sh

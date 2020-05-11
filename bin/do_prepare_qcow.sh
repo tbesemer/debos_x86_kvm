@@ -185,7 +185,7 @@ popd
 #  Set Root Password
 #
 sudo chroot ${QCOW_ROOTFS_PATH} sh -c "\
-	echo root:root | chpasswd;"
+	echo root:infinera | chpasswd;"
 
 # Enable Root Login via ssh.
 #

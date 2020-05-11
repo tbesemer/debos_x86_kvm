@@ -38,7 +38,6 @@ then
    exit 1
 fi
 
-ROOTFS_NAME=kvm-x86-rootfs
 ROOTFS_PATH=${IMAGES_DIR}/${ROOTFS_NAME}
 
 #  Helper functions for RFS Generation.
@@ -94,6 +93,10 @@ then
     echo "$0: do_unmount FAILED"
     exit 1
 fi
+
+pushd ${IMAGES_DIR}/${ROOTFS_NAME}
+tar czf ${IMAGES_DIR}/${ROOTFS_NAME}.tgz .
+popd
 
 echo "$0: Root FS Created"
 exit 0

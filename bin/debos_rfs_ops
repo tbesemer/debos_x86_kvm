@@ -120,3 +120,88 @@ function ctl_c_handler()
     echo "$0: Exiting"
     exit 0
 }
+
+#  Mounted needed functions for apt operations.
+#
+function do_qcow_mount()
+{
+    sudo -E mount --bind /dev $QCOW_ROOTFS_PATH/dev
+    if [ $? -ne 0 ]
+    then
+        echo "$0: mount of $QCOW_ROOTFS_PATH/dev/pts failed"
+        return 1
+    fi
+
+    sudo -E mount --bind /dev/pts $QCOW_ROOTFS_PATH/dev/pts
+    if [ $? -ne 0 ]
+    then
+        echo "$0: mount of $QCOW_ROOTFS_PATH/dev/pts failed"
+        sudo -E umount $QCOW_ROOTFS_PATH/dev
+        return 1
+    fi
+
+    sudo -E mount --bind /proc $QCOW_ROOTFS_PATH/proc
+    if [ $? -ne 0 ]
+    then
+        echo "$0: mount of $QCOW_ROOTFS_PATH/proc failed"
+        sudo -E umount $QCOW_ROOTFS_PATH/dev/pts
+        sudo -E umount $QCOW_ROOTFS_PATH/dev
+        return 1
+    fi
+
+    return 0
+}
+
+# Attempt to do a clean unmount, and check status.
+#
+function do_qcow_unmount()
+{
+    sudo -E umount $QCOW_ROOTFS_PATH/proc
+    if [ $? -ne 0 ]
+    then
+        echo "$0: umount of $QCOW_ROOTFS_PATH/proc failed"
+        return 2
+    fi
+
+    sudo -E umount $QCOW_ROOTFS_PATH/dev/pts
+    if [ $? -ne 0 ]
+    then
+        echo "$0: umount of $QCOW_ROOTFS_PATH/dev/pts failed"
+        sudo -E umount $QCOW_ROOTFS_PATH/dev
+        return 1
+    fi
+
+    sudo -E umount $QCOW_ROOTFS_PATH/dev
+    if [ $? -ne 0 ]
+    then
+        echo "$0: umount of $QCOW_ROOTFS_PATH/dev/pts failed"
+        return 1
+    fi
+
+    return 0
+}
+
+function do_qcow_package_install()
+{
+
+    if [ $# -eq 0 ]
+    then
+        echo "do_package_install: Empty Arguments"
+	return 1
+    else
+        PLIST=$(echo ${1} | tr "," " "); \
+    fi
+
+
+    echo "Installing $PLIST"
+    export PLIST
+
+    sudo -E chroot ${QCOW_ROOTFS_PATH} sh -c "\
+	export DEBIAN_FRONTEND=noninteractive;\
+	export LC_ALL=C.UTF-8;\
+	apt-get update; \
+	errStat=$? ;\
+	apt-get install -y ${PLIST}; \
+	errStat=$((errStat + $?)); \
+        return $errStat"
+}

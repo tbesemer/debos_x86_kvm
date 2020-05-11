@@ -2,7 +2,9 @@ export ROOT_DIR := $(shell pwd)
 export IMAGES_DIR := ${ROOT_DIR}/images
 export BIN_DIR := ${ROOT_DIR}/bin
 export CONFIG_DIR := ${ROOT_DIR}/config
+export ROOTFS_OVERLAY_DIR := ${ROOT_DIR}/rootfs_overlay
 export ROOTFS_NAME := kvm-x86-rootfs
+export QCOW_ROOTFS_NAME := qcow_mnt
 
 .PHONY: build_template_rfs
 build_template_rfs:

@@ -17,6 +17,14 @@ build_template_rfs:
 prepare_qcow_image:
 	bin/do_prepare_qcow.sh
 
+.PHONY: mount_qcow_image
+mount_qcow_image:
+	bin/do_mount_qcow.sh
+
+.PHONY: unmount_qcow_image
+unmount_qcow_image:
+	bin/do_unmount_qcow.sh
+
 .PHONY: clean_template_rfs
 clean_template_rfs:
 	sudo -E bin/do_clean_base_x86.sh

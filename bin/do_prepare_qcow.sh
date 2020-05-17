@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#  Define the packages to install into the Base RFS.
-#  These are mainly meant to be boot related packages.
-#
-PACKAGES=linux-image-amd64
-PACKAGES+=,grub-pc
-
 #  Key variables for proper opration.
 #
 #  We assume that ROOT_DIR and IMAGES_DIR are set, and if not,
@@ -140,7 +134,6 @@ fi
 sudo cp -Rp ${ROOTFS_PATH}/* .
 popd
 
-
 echo "$0: Mounting for Package Install"
 do_qcow_mount
 if [ $? -ne 0 ]
@@ -153,15 +146,11 @@ then
 fi
 
 echo "$0: Doing Package Install"
-do_qcow_package_install $PACKAGES
-if [ $? -ne 0 ]
-then
-    echo "$0: do_qcow_package_install FAILED"
-    do_qcow_unmount;
-    sleep 1
-    sudo qemu-nbd -d /dev/nbd0
-    exit 1
-fi
+sudo chroot ${QCOW_ROOTFS_PATH} sh -c "\
+	export DEBIAN_FRONTEND=noninteractive;\
+	export LC_ALL=C.UTF-8;\
+	apt-get update; \
+	apt-get install -y grub-pc;"
 
 echo "$0: Unmounting after Package Install"
 do_qcow_unmount

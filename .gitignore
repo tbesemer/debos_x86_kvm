@@ -1,3 +1,7 @@
 images/kvm-x86-rootfs.tgz
 images/kvm-x86-rootfs/
 images/debian.qcow2
+images/boot_root/
+images/linux_build/
+images/os_release.tar
+

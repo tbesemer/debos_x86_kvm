@@ -5,6 +5,7 @@ export CONFIG_DIR := ${ROOT_DIR}/config
 export ROOTFS_OVERLAY_DIR := ${ROOT_DIR}/rootfs_overlay
 export ROOTFS_NAME := kvm-x86-rootfs
 export QCOW_ROOTFS_NAME := qcow_mnt
+export NPROCS := $(shell nproc)
 
 .PHONY: all
 all: build_template_rfs prepare_qcow_image
@@ -16,6 +17,10 @@ build_template_rfs:
 .PHONY: prepare_qcow_image
 prepare_qcow_image:
 	bin/do_prepare_qcow.sh
+
+.PHONY: build_deb_kernel
+build_deb_kernel:
+	bin/do_deb_kernel_build.sh
 
 .PHONY: mount_qcow_image
 mount_qcow_image:

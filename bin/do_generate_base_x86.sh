@@ -15,6 +15,7 @@ PACKAGES+=,openssh-server
 PACKAGES+=,systemd-sysv
 PACKAGES+=,procps
 PACKAGES+=,util-linux
+PACKAGES+=,initramfs-tools
 
 
 #  Key variables for proper opration.
@@ -86,6 +87,12 @@ then
     exit 1
 fi
 
+echo "$0: Installing Kernel"
+pushd $ROOTFS_PATH
+tar xf ${IMAGES_DIR}/os_release.tar
+popd
+chroot ${ROOTFS_PATH} sh -c "update-initramfs -c -k 4.19.118+ ;"
+
 echo "$0: Unmounting after Package Install"
 do_unmount
 if [ $? -ne 0 ]
@@ -93,10 +100,6 @@ then
     echo "$0: do_unmount FAILED"
     exit 1
 fi
-
-pushd ${IMAGES_DIR}/${ROOTFS_NAME}
-tar czf ${IMAGES_DIR}/${ROOTFS_NAME}.tgz .
-popd
 
 echo "$0: Root FS Created"
 exit 0

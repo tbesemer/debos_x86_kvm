@@ -53,7 +53,6 @@ then
 fi
 
 rm -rf ${ROOTFS_NAME}
-rm -f "${ROOTFS_NAME}".tgz
 
 popd
 

@@ -1,0 +1,21 @@
+A tested approach to building up a VM to run this is:
+
+1. Install stock Debian 9 or 10 from the netinst image.
+2. In ~/bin, run the appropriate script to install packages:
+    a.  do_deb9_kvm_install.sh
+    b.  do_deb10_kvm_install.sh
+
+Note that in the above scripts, there is a link to the
+original site which provided the instructions.  You will
+also need to add users to the two new groups:
+
+  sudo  adduser <username> libvirt
+  sudo  adduser <username> libvirt-qemu
+
+Then, if the user is currently logged in, they must do this:
+
+  newgrp libirt
+  newgrp libirt-qemu
+
+Alternatively, log out and log back in.
+

@@ -4,6 +4,7 @@ export BIN_DIR := ${ROOT_DIR}/bin
 export CONFIG_DIR := ${ROOT_DIR}/config
 export ROOTFS_OVERLAY_DIR := ${ROOT_DIR}/rootfs_overlay
 export ROOTFS_NAME := kvm-x86-rootfs
+export KERNEL_RELEASE := ${IMAGES_DIR}/os_release.tar
 export QCOW_ROOTFS_NAME := qcow_mnt
 export NPROCS := $(shell nproc)
 

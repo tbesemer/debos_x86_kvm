@@ -24,13 +24,13 @@ BOOT_ROOT_DIR="$IMAGES_DIR"/boot_root
 BUILD_DIR="$IMAGES_DIR"/"$BUILD_DIR_NAME"
 INSTALL_MOD_PATH_ROOT="$BOOT_ROOT_DIR"
 
-#  Check to see if ~/images/os_release.tar exists, if so, don't
+#  Check to see if $KERNEL_RELEASE exists, if so, don't
 #  run the long build - if people want to rebuild, they have to
 #  clean things up by hand, and do what they want to do by hand.
 #
-if [ -f $IMAGES_DIR/os_release.tar ]
+if [ -f ${KERNEL_RELEASE} ]
 then
-    echo "$0: ~/images/os_release.tar exists, not building"
+    echo "$0: [$KERNEL_RELEASE] exists, not building"
     echo "=========>    Please remove if you want a rebuild"
     exit 0
 fi
@@ -86,7 +86,7 @@ cp .config  $BOOT_ROOT_DIR/boot/config-4.19.118+
 pushd $BOOT_ROOT_DIR
 ln -fs boot/vmlinuz-4.19.118+ vmlinuz
 ln -fs boot/initrd.img-4.19.118+ initrd.img
-tar cf $IMAGES_DIR/os_release.tar .
+tar cf $KERNEL_RELEASE .
 popd
 
 popd

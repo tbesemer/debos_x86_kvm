@@ -87,11 +87,27 @@ then
     exit 1
 fi
 
-echo "$0: Installing Kernel"
-pushd $ROOTFS_PATH
-tar xf ${IMAGES_DIR}/os_release.tar
-popd
-chroot ${ROOTFS_PATH} sh -c "update-initramfs -c -k 4.19.118+ ;"
+#  Check to see if we have a custom Kernel.  Else install a stock one.
+#
+echo "$0: Performing Kernel Install"
+
+if [ -f ${KERNEL_RELEASE} ]
+then
+    echo "$0: Installing Kernel from [$KERNEL_RELEASE]"
+    pushd $ROOTFS_PATH
+    tar xf ${KERNEL_RELEASE}
+    popd
+    chroot ${ROOTFS_PATH} sh -c "update-initramfs -c -k 4.19.118+ ;"
+else
+    echo "$0: Installing Default Kernel"
+    sudo chroot ${ROOTFS_PATH} sh -c "\
+	export DEBIAN_FRONTEND=noninteractive;\
+	export LC_ALL=C.UTF-8;\
+	apt-get update; \
+	apt-get install -y linux-image-amd64;"
+fi
+
+echo "$0: Done with Kernel Install"
 
 echo "$0: Unmounting after Package Install"
 do_unmount

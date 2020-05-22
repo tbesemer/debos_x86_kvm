@@ -9,7 +9,7 @@ export QCOW_ROOTFS_NAME := qcow_mnt
 export NPROCS := $(shell nproc)
 
 .PHONY: all
-all: build_template_rfs prepare_qcow_image
+all: build_deb_kernel build_template_rfs prepare_qcow_image
 
 .PHONY: build_template_rfs
 build_template_rfs:

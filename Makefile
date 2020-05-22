@@ -27,9 +27,38 @@ build_template_rfs:
 prepare_qcow_image:
 	bin/do_prepare_qcow.sh
 
-.PHONY: build_deb_kernel
-build_deb_kernel:
-	bin/do_deb_kernel_build.sh
+.PHONY: linux_all
+linux_all: fetch_kernel_source linux_defconfig linux linux_install
+
+.PHONY: fetch_kernel_source
+fetch_kernel_source:
+	bin/do_deb_kernel_pull.sh
+
+.PHONY: linux_defconfig
+linux_defconfig:
+	cp -p ${CONFIG_DIR}/${CONFIG_FILE} ${BUILD_DIR}/linux/.config
+	make ARCH=x86_64 -C ${BUILD_DIR}/linux oldconfig
+
+.PHONY: linux_save_defconfig
+linux_save_defconfig:
+	cp -p ${BUILD_DIR}/linux/.config ${CONFIG_DIR}/${CONFIG_FILE} 
+
+.PHONY: linux
+linux:
+	make ARCH=x86_64 -j ${NPROCS} -C ${BUILD_DIR}/linux bzImage
+	make ARCH=x86_64 -j ${NPROCS} -C ${BUILD_DIR}/linux modules
+
+.PHONY: linux_install
+linux_install:
+	bin/do_deb_kernel_install.sh
+
+.PHONY: linux_xconfig
+linux_xconfig:
+	make ARCH=x86_64 -C ${BUILD_DIR}/linux xconfig
+
+.PHONY: linux_menuconfig
+linux_menuconfig:
+	make ARCH=x86_64 -C ${BUILD_DIR}/linux menuconfig
 
 .PHONY: mount_qcow_image
 mount_qcow_image:

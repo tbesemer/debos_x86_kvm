@@ -16,14 +16,6 @@ else
     echo "$0: NPROCS == $NPROCS"
 fi
 
-CONFIG_DIR=$ROOT_DIR/config
-CONFIG_FILE=defconfig_linux-4.19.118+
-BUILD_DIR_NAME="linux_build"
-IMAGES_DIR="$ROOT_DIR"/images
-BOOT_ROOT_DIR="$IMAGES_DIR"/boot_root
-BUILD_DIR="$IMAGES_DIR"/"$BUILD_DIR_NAME"
-INSTALL_MOD_PATH_ROOT="$BOOT_ROOT_DIR"
-
 #  Check to see if $KERNEL_RELEASE exists, if so, don't
 #  run the long build - if people want to rebuild, they have to
 #  clean things up by hand, and do what they want to do by hand.

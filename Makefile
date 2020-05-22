@@ -8,6 +8,14 @@ export KERNEL_RELEASE := ${IMAGES_DIR}/os_release.tar
 export QCOW_ROOTFS_NAME := qcow_mnt
 export NPROCS := $(shell nproc)
 
+# Custom Kernel specific variables
+#
+export CONFIG_FILE := defconfig_linux-4.19.118+
+export BUILD_DIR_NAME := linux_build
+export BOOT_ROOT_DIR := ${IMAGES_DIR}/boot_root
+export BUILD_DIR := ${IMAGES_DIR}/${BUILD_DIR_NAME}
+export INSTALL_MOD_PATH_ROOT := ${BOOT_ROOT_DIR}
+
 .PHONY: all
 all: build_template_rfs prepare_qcow_image
 

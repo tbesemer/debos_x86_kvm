@@ -71,3 +71,7 @@ unmount_qcow_image:
 .PHONY: clean_template_rfs
 clean_template_rfs:
 	sudo -E bin/do_clean_base_x86.sh
+
+.PHONY: help
+help:
+	@ less README.Makefile

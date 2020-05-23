@@ -39,6 +39,27 @@ then
     exit 1
 fi
 
+# Find unused NBD
+#
+NBD_DEV="none"
+for x in /sys/class/block/nbd* 
+do
+    S=`cat $x/size`
+    if [ "$S" == "0" ]
+    then
+	echo "$0: $x is available"
+	NBD_DEV=`basename $x`
+	echo "$0: NBD_DEV $NBD_DEV"
+        break
+    fi
+done
+
+if [ "$NBD_DEV" == "none" ]
+then
+    echo "$0: No Free NBD's, Error"
+    exit 1
+fi
+
 pushd ${IMAGES_DIR}
 if [ $? -ne 0 ]
 then
@@ -62,34 +83,34 @@ then
     exit 1
 fi
 
-sudo qemu-nbd -c /dev/nbd0 debian.qcow2
+sudo qemu-nbd -c /dev/$NBD_DEV debian.qcow2
 if [ $? -ne 0 ]
 then
-    echo "$0: qemu-ndb on /dev/ndb0 Failed"
+    echo "$0: qemu-ndb on /dev/$NBD_DEV Failed"
     exit 1
 fi
 
-sudo sfdisk /dev/nbd0 < ${CONFIG_DIR}/qcow1_part_table.txt
+sudo sfdisk /dev/$NBD_DEV < ${CONFIG_DIR}/qcow1_part_table.txt
 if [ $? -ne 0 ]
 then
-    echo "$0: sfdisk on /dev/ndb0 Failed"
-    sudo qemu-nbd -d /dev/nbd0
+    echo "$0: sfdisk on /dev/$NBD_DEV Failed"
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
-sudo mkswap /dev/nbd0p1
+sudo mkswap /dev/"$NBD_DEV"p1
 if [ $? -ne 0 ]
 then
-    echo "$0: mkswap on /dev/ndb0p1 Failed"
-    sudo qemu-nbd -d /dev/nbd0
+    echo "$0: mkswap on /dev/$NBD_DEV p1 Failed"
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
-sudo mkfs.ext4 /dev/nbd0p2
+sudo mkfs.ext4 /dev/"$NBD_DEV"p2
 if [ $? -ne 0 ]
 then
-    echo "$0: mkfs.ext4 on /dev/ndb0p2 Failed"
-    sudo qemu-nbd -d /dev/nbd0
+    echo "$0: mkfs.ext4 on /dev/$NBD_DEV p2 Failed"
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
@@ -99,15 +120,15 @@ mkdir -p ${QCOW_ROOTFS_PATH}
 if [ $? -ne 0 ]
 then
     echo "$0: mkdir on QCOW_ROOTFS_PATH [$QCOW_ROOTFS_PATH] Failed"
-    sudo qemu-nbd -d /dev/nbd0
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
-sudo mount /dev/nbd0p2 ${QCOW_ROOTFS_PATH}
+sudo mount /dev/"$NBD_DEV"p2 ${QCOW_ROOTFS_PATH}
 if [ $? -ne 0 ]
 then
     echo "$0: mount of QCOW_ROOTFS_PATH [$QCOW_ROOTFS_PATH] Failed"
-    sudo qemu-nbd -d /dev/nbd0
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
@@ -124,7 +145,7 @@ then
     
     sudo umount ${QCOW_ROOTFS_PATH}
     sleep 1
-    sudo qemu-nbd -d /dev/nbd0
+    sudo qemu-nbd -d /dev/$NBD_DEV
 
     exit 1
 fi
@@ -141,7 +162,7 @@ then
     echo "$0: do_qcow_mount FAILED"
     sudo umount ${QCOW_ROOTFS_PATH}
     sleep 1
-    sudo qemu-nbd -d /dev/nbd0
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
@@ -158,11 +179,11 @@ if [ $? -ne 0 ]
 then
     echo "$0: do_unmount FAILED"
     sleep 1
-    sudo qemu-nbd -d /dev/nbd0
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
-sudo grub-install /dev/nbd0 --root-directory=${QCOW_ROOTFS_PATH} --modules="biosdisk part_msdos"
+sudo grub-install /dev/$NBD_DEV --root-directory=${QCOW_ROOTFS_PATH} --modules="biosdisk part_msdos"
 
 #  Install final overlay to tune the boot.
 #
@@ -194,16 +215,16 @@ echo "$0: System Installed.."
 sudo umount ${QCOW_ROOTFS_PATH}
 if [ $? -ne 0 ]
 then
-    echo "$0: unmount of ./qcow_mnt Failed, maybe dangling /dev/nbd0"
+    echo "$0: unmount of ./qcow_mnt Failed, maybe dangling /dev/$NBD_DEV"
     sleep 1
-    sudo qemu-nbd -d /dev/nbd0
+    sudo qemu-nbd -d /dev/$NBD_DEV
     exit 1
 fi
 
-sudo qemu-nbd -d /dev/nbd0
+sudo qemu-nbd -d /dev/$NBD_DEV
 if [ $? -ne 0 ]
 then
-    echo "$0: qemu-nbd -d /dev/nbd0 failed"
+    echo "$0: qemu-nbd -d /dev/$NBD_DEV failed"
     exit 1
 fi
 

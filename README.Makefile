@@ -36,5 +36,6 @@
 #  Clean Targets:
 #
 #    clean_template_rfs:    #  Remove the template RFS.
+#    clean_qcow:            #  Remove QCOW Image.
 #
 #=======================

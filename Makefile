@@ -72,6 +72,10 @@ unmount_qcow_image:
 clean_template_rfs:
 	sudo -E bin/do_clean_base_x86.sh
 
+.PHONY: clean_qcow
+clean_qcow:
+	sudo rm -f ${IMAGES_DIR}/debian.qcow2
+
 .PHONY: help
 help:
 	@ less README.Makefile

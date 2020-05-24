@@ -183,7 +183,7 @@ then
     exit 1
 fi
 
-sudo grub-install /dev/$NBD_DEV --root-directory=${QCOW_ROOTFS_PATH} --modules="biosdisk part_msdos"
+sudo grub-install /dev/$NBD_DEV --target=i386-pc --root-directory=${QCOW_ROOTFS_PATH} --modules="biosdisk part_msdos"
 
 #  Install final overlay to tune the boot.
 #
